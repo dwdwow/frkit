@@ -1,5 +1,7 @@
 github.com/dwdwow/cex v0.0.41 h1:tdoo5J7mVEvorkAa5XNX4BWDRefKSm3NOsQm6epvElE=
 github.com/dwdwow/cex v0.0.41/go.mod h1:OWs8mT/zq5ZvzQ20wZFM90zOFMOqpef9LdMrIsgna1Q=
+github.com/dwdwow/cex v0.0.42 h1:yUTRAMf/cDLG65l/w5Gq1tlXFUqUE/axRAzorrkl44k=
+github.com/dwdwow/cex v0.0.42/go.mod h1:OWs8mT/zq5ZvzQ20wZFM90zOFMOqpef9LdMrIsgna1Q=
 github.com/dwdwow/mathy v0.0.1 h1:GWcz6JWyyOw595rsgHzCZ/c/pZWYZH/vNTQry7uizP0=
 github.com/dwdwow/mathy v0.0.1/go.mod h1:h0IWHqLQ3ys+9xgNstJQeaFTexAgVfldHz+FSAruYCc=
 github.com/go-resty/resty/v2 v2.11.0 h1:i7jMfNOJYMp69lq7qozJP+bjgzfAzeOhuGlyDrqxT/8=
