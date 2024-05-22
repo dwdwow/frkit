@@ -69,3 +69,11 @@ func QuerySpotPairs() (map[string]cex.Pair, error) {
 func QueryFuPairs() (map[string]cex.Pair, error) {
 	return queryPairs(bnc.QueryFuturesPairs)
 }
+
+func mapGetter[U any](m map[string]U, key string) (U, bool) {
+	if m == nil {
+		return *new(U), false
+	}
+	v, ok := m[key]
+	return v, ok
+}
