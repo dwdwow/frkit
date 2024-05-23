@@ -39,8 +39,8 @@ func (a VIPPortmarAccount) PortmarPosition(symbol string) (bnc.PortfolioMarginAc
 	return mapGetter(a.pmPoss, symbol)
 }
 
-func (a VIPPortmarAccount) PortmarCollateralRate(symbol string) (bnc.PortfolioMarginCollateralRate, bool) {
-	return mapGetter(a.collRates, symbol)
+func (a VIPPortmarAccount) PortmarCollateralRate(asset string) (bnc.PortfolioMarginCollateralRate, bool) {
+	return mapGetter(a.collRates, asset)
 }
 
 func QueryVIPPortmarAccount(user *bnc.User) (resp *resty.Response, acct *VIPPortmarAccount, reqErr cex.RequestError) {
