@@ -56,7 +56,7 @@ func QueryVIPPortmarAccount(user *bnc.User) (resp *resty.Response, acct *VIPPort
 	if reqErr.IsNotNil() {
 		return
 	}
-	resp, loanOrders, reqErr := user.VIPLoanOngoingOrders(0, 0, "", "")
+	resp, loanOrders, reqErr := user.VIPLoanOngoingOrders("", "", "", "")
 	if reqErr.IsNotNil() {
 		return
 	}
