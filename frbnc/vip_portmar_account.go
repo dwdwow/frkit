@@ -8,6 +8,17 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
+const (
+	WarnedUniMMR  = 3.0
+	AlertedUniMMR = 2.0
+)
+
+type VIPPortmarAccountConfig struct {
+	MinUniMMR      float64
+	BalancedUniMMR float64
+	MaxUniMMR      float64
+}
+
 type VIPPortmarAccount struct {
 	ApiKey string          `json:"apiKey"`
 	Time   int64           `json:"time"`
