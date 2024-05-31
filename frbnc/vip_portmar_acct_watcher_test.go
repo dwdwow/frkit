@@ -11,7 +11,7 @@ import (
 func TestNewVIPPortmarAcctWatcher(t *testing.T) {
 	keys, err := cex.ReadApiKey()
 	props.PanicIfNotNil(err)
-	key, ok := keys["dahuangya"]
+	key, ok := keys["HUANGYAN"]
 	if !ok {
 		panic("not ok")
 	}
