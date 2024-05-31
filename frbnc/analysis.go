@@ -3,7 +3,7 @@ package frbnc
 import (
 	"errors"
 	"math"
-	"sort"
+	"slices"
 
 	"github.com/dwdwow/cex/bnc"
 	"github.com/dwdwow/mathy"
@@ -93,6 +93,7 @@ func AnalyzeFuturesUsdt(acct *Account) (analysis FuturesUsdtAnalysis) {
 		analysis.Err = errors.New("can not get usdt futures wallet balance")
 		return
 	}
+	// -5000 needs modification, it is a trigger value
 	if usdt.WalletBalance > -5000 {
 		return
 	}
@@ -129,8 +130,8 @@ func AnalyzeMarginableSpotBals(acct *Account) (bals []MarginableSpotBal) {
 			Err:             err,
 		})
 	}
-	sort.Slice(bals, func(i, j int) bool {
-		return bals[i].MarginAvailable > bals[j].MarginAvailable
+	slices.SortFunc(bals, func(i, j MarginableSpotBal) int {
+		return int(math.Copysign(1, j.MarginAvailable-i.MarginAvailable))
 	})
 	return
 }

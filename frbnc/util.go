@@ -70,10 +70,10 @@ func QueryFuPairs() (map[string]cex.Pair, error) {
 	return queryPairs(bnc.QueryFuturesPairs)
 }
 
-func mapGetter[U any](m map[string]U, key string) (U, bool) {
+func mapGetter[U any](m map[string]U, key string) (v U, ok bool) {
 	if m == nil {
-		return *new(U), false
+		return
 	}
-	v, ok := m[key]
-	return v, ok
+	v, ok = m[key]
+	return
 }
