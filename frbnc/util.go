@@ -15,6 +15,14 @@ func slice2map[T any, S []T](s S, key func(T) string) map[string]T {
 	return m
 }
 
+func slice2mapkv[T1 any, T2 any, S []T1](s S, key func(T1) string, value func(T1) T2) map[string]T2 {
+	m := make(map[string]T2, len(s))
+	for _, t := range s {
+		m[key(t)] = value(t)
+	}
+	return m
+}
+
 func fuPrice(pos bnc.FuturesAccountPosition) (price float64, err error) {
 	posAmt := pos.AbsPositionAmt()
 	if posAmt > 0 {
@@ -70,10 +78,21 @@ func QueryFuPairs() (map[string]cex.Pair, error) {
 	return queryPairs(bnc.QueryFuturesPairs)
 }
 
-func mapGetter[U any](m map[string]U, key string) (U, bool) {
+func mapGetter[U any](m map[string]U, key string) (v U, ok bool) {
 	if m == nil {
-		return *new(U), false
+		return
 	}
-	v, ok := m[key]
-	return v, ok
+	v, ok = m[key]
+	return
+}
+
+func delSpotAcctAssetZeroValue(acct *VIPPortmarAccount) []bnc.SpotBalance {
+	spotBals := make([]bnc.SpotBalance, 0, len(acct.spBals))
+	for _, bal := range acct.spBals {
+		if bal.Free == 0 && bal.Locked == 0 {
+			continue
+		}
+		spotBals = append(spotBals, bal)
+	}
+	return spotBals
 }

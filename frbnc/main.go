@@ -7,7 +7,6 @@ import (
 	"math"
 	"os"
 	"slices"
-	"sort"
 	"sync"
 	"time"
 
@@ -46,8 +45,7 @@ func NewMain(user *bnc.User, logger *slog.Logger) (*Main, error) {
 
 func (m *Main) wait() {
 	suber := m.acctWatcher.Sub()
-	for {
-		acct := <-suber
+	for acct := range suber {
 		if acct.Err != nil {
 			m.logger.Error("Receive Account Error", "err", acct.Err)
 			continue
@@ -64,8 +62,7 @@ func (m *Main) handle(acct *Account) {
 
 	m.handleRedundant(acct)
 
-	analysis := AnalyzeAccount(acct)
-	m.handleAnalysis(acct, analysis)
+	m.handleAnalysis(acct, AnalyzeAccount(acct))
 }
 
 func (m *Main) handleRedundant(acct *Account) {
@@ -97,7 +94,7 @@ func (m *Main) handleLowLtvOrds(acct *Account) {
 }
 
 func (m *Main) adjustLowRiskFutureAccount(acct *Account) {
-	marginRatio, marginValue, totalPos := acct.MarginRatio()
+	_, marginValue, totalPos := acct.MarginRatio()
 
 	var marginGap float64
 
@@ -105,8 +102,7 @@ func (m *Main) adjustLowRiskFutureAccount(acct *Account) {
 		m.logger.Info("Future Total Position Is 0")
 		return
 	} else {
-		marginRatio = marginValue / totalPos
-		marginGap = totalPos * math.Abs(marginRatio-middleFuturesAccountMarginRatio)
+		marginGap = totalPos * math.Abs(marginValue/totalPos-middleFuturesAccountMarginRatio)
 	}
 
 	remainMarginGap := marginGap
@@ -222,12 +218,12 @@ func (m *Main) ClassifyLoanOrds(acct *Account) (lowLtvOrds, highLtvOrds []bnc.Cr
 		}
 	}
 
-	sort.Slice(lowLtvOrds, func(i, j int) bool {
-		return lowLtvOrds[i].CurrentLTV < lowLtvOrds[j].CurrentLTV
+	slices.SortFunc(lowLtvOrds, func(i, j bnc.CryptoLoanFlexibleOngoingOrder) int {
+		return int(math.Copysign(1, i.CurrentLTV-j.CurrentLTV))
 	})
 
-	sort.Slice(highLtvOrds, func(i, j int) bool {
-		return highLtvOrds[i].CurrentLTV > highLtvOrds[j].CurrentLTV
+	slices.SortFunc(highLtvOrds, func(i, j bnc.CryptoLoanFlexibleOngoingOrder) int {
+		return int(math.Copysign(1, j.CurrentLTV-i.CurrentLTV))
 	})
 
 	//var lowCollaterals, highCollaterals []string
@@ -794,12 +790,13 @@ func (m *Main) NewPos(spPair, fuPair cex.Pair, spSide cex.OrderSide, spQty, fuEx
 	}
 
 	var spTrader, fuTrader cex.MarketTraderFunc
-	if spSide == cex.OrderSideBuy {
+	switch spSide {
+	case cex.OrderSideBuy:
 		spTrader = m.user.NewSpotMarketBuyOrder
-		fuTrader = m.user.NewFuturesMarketSellOrder
-	} else if spSide == cex.OrderSideSell {
-		spTrader = m.user.NewSpotMarketSellOrder
 		fuTrader = m.user.NewFuturesMarketBuyOrder
+	case cex.OrderSideSell:
+		spTrader = m.user.NewSpotMarketSellOrder
+		fuTrader = m.user.NewFuturesMarketSellOrder
 	}
 
 	logger.Info("Placing Spot Market Order")

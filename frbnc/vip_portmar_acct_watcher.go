@@ -112,8 +112,7 @@ func (aw *VIPPortmarAcctWatcher) broadcast(acct *VIPPortmarAccount, err error) {
 	aw.muxSubbers.Lock()
 	defer aw.muxSubbers.Unlock()
 	for _, suber := range aw.subbers {
-		suber := suber
-		go func() {
+		go func(suber chan VIPPortmarAcctWatcherMsg) {
 			timer := time.NewTimer(time.Second)
 			defer timer.Stop()
 			select {
@@ -121,7 +120,7 @@ func (aw *VIPPortmarAcctWatcher) broadcast(acct *VIPPortmarAccount, err error) {
 				aw.logger.Error("No Reader Of Account Channel Within 1 Second")
 			case suber <- VIPPortmarAcctWatcherMsg{acct, err}:
 			}
-		}()
+		}(suber)
 	}
 }
 

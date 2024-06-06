@@ -16,10 +16,9 @@ func TestNewVIPPortmarAcctWatcher(t *testing.T) {
 		panic("not ok")
 	}
 	watcher := NewVIPPortmarAcctWatcher(bnc.NewUser(key.ApiKey, key.SecretKey), nil)
-	err = watcher.Start()
-	props.PanicIfNotNil(err)
-	c := watcher.Sub()
-	for {
-		props.PrintlnIndent(<-c)
+	props.PanicIfNotNil(watcher.Start())
+
+	for e := range watcher.Sub() {
+		props.PrintlnIndent(e)
 	}
 }

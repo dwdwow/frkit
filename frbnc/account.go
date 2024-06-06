@@ -79,6 +79,7 @@ func (a *Account) MarginRatio() (ratio, margin, totalPos float64) {
 	acct := a.Futures
 	margin = acct.TotalMarginBalance
 
+	// ETHBTC需要单独考虑 quote asset是USDC的无伤大雅
 	for _, pos := range acct.Positions {
 		totalPos += pos.PositionInitialMargin * pos.Leverage
 	}
@@ -90,6 +91,10 @@ func (a *Account) MarginRatio() (ratio, margin, totalPos float64) {
 	ratio = margin / totalPos
 
 	return
+}
+
+func (a *Account) FuturesMMR() (mmr float64) {
+	return a.Futures.TotalMaintMargin / a.Futures.TotalMarginBalance
 }
 
 func QueryAccount(user *bnc.User) (resp *resty.Response, acct *Account, err cex.RequestError) {
