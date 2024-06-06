@@ -11,6 +11,8 @@ github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f h1:lO4WD4F/r
 github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f/go.mod h1:cuUVRXasLTGF7a8hSLbxyZXjz+1KgoB3wDUb6vlszIc=
 github.com/dwdwow/cex v0.0.46 h1:i4k1aRy+HvVEKNLYSrUQIgMVt8kmzuZmu1GPp7BMSkI=
 github.com/dwdwow/cex v0.0.46/go.mod h1:OWs8mT/zq5ZvzQ20wZFM90zOFMOqpef9LdMrIsgna1Q=
+github.com/dwdwow/cex v0.0.48 h1:DBvPz9onyrQPRKG1epWmIfLc3c+QXtXtflSOlA8SEfw=
+github.com/dwdwow/cex v0.0.48/go.mod h1:OWs8mT/zq5ZvzQ20wZFM90zOFMOqpef9LdMrIsgna1Q=
 github.com/dwdwow/mathy v0.0.1 h1:GWcz6JWyyOw595rsgHzCZ/c/pZWYZH/vNTQry7uizP0=
 github.com/dwdwow/mathy v0.0.1/go.mod h1:h0IWHqLQ3ys+9xgNstJQeaFTexAgVfldHz+FSAruYCc=
 github.com/dwdwow/props v0.0.4 h1:4d/zbuaYRTTHwRmIWNDahjMYUUAMH3WDz84wcQVmvB0=

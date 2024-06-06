@@ -3,7 +3,7 @@ module github.com/dwdwow/frkit
 go 1.22.1
 
 require (
-	github.com/dwdwow/cex v0.0.46
+	github.com/dwdwow/cex v0.0.48
 	github.com/dwdwow/mathy v0.0.1
 	github.com/dwdwow/props v0.0.4
 	github.com/go-resty/resty/v2 v2.11.0
