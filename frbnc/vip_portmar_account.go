@@ -30,12 +30,12 @@ type VIPPortmarAccount struct {
 	LoanOrders     []bnc.VIPLoanOngoingOrder          `json:"loanOrders"`
 	LoanStatusInfo []bnc.VIPLoanApplicationStatusInfo `json:"loanStatusInfo"`
 
-	CollateralRates []bnc.PortfolioMarginCollateralRate `json:"collateralRates"`
+	PortmarCollateralRates []bnc.PortfolioMarginCollateralRate `json:"collateralRates"`
 
-	spBals    map[string]bnc.SpotBalance
-	pmAssets  map[string]bnc.PortfolioMarginAccountAsset
-	pmPoss    map[string]bnc.PortfolioMarginAccountPosition
-	collRates map[string]bnc.PortfolioMarginCollateralRate
+	spBals      map[string]bnc.SpotBalance
+	pmAssets    map[string]bnc.PortfolioMarginAccountAsset
+	pmPoss      map[string]bnc.PortfolioMarginAccountPosition
+	pmCollRates map[string]bnc.PortfolioMarginCollateralRate
 }
 
 func (a VIPPortmarAccount) SpotBalance(asset string) (bnc.SpotBalance, bool) {
@@ -51,7 +51,7 @@ func (a VIPPortmarAccount) PortmarPosition(symbol string) (bnc.PortfolioMarginAc
 }
 
 func (a VIPPortmarAccount) PortmarCollateralRate(asset string) (bnc.PortfolioMarginCollateralRate, bool) {
-	return mapGetter(a.collRates, asset)
+	return mapGetter(a.pmCollRates, asset)
 }
 
 func QueryVIPPortmarAccount(user *bnc.User) (resp *resty.Response, acct *VIPPortmarAccount, reqErr cex.RequestError) {
@@ -89,11 +89,11 @@ func QueryVIPPortmarAccount(user *bnc.User) (resp *resty.Response, acct *VIPPort
 		PortmarAccountInformation: pmInfo,
 		LoanOrders:                loanOrders.Rows,
 		LoanStatusInfo:            loanStatusInfo.Rows,
-		CollateralRates:           collRates,
+		PortmarCollateralRates:    collRates,
 		spBals:                    slice2map(spot.Balances, func(balance bnc.SpotBalance) string { return balance.Asset }),
 		pmAssets:                  slice2map(pmDetail.Assets, func(asset bnc.PortfolioMarginAccountAsset) string { return asset.Asset }),
 		pmPoss:                    slice2map(pmDetail.Positions, func(position bnc.PortfolioMarginAccountPosition) string { return position.Symbol }),
-		collRates: slice2map(collRates, func(rate bnc.PortfolioMarginCollateralRate) string {
+		pmCollRates: slice2map(collRates, func(rate bnc.PortfolioMarginCollateralRate) string {
 			return rate.Asset
 		}),
 	}
