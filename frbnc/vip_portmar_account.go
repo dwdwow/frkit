@@ -17,6 +17,8 @@ type VIPPortmarAccountConfig struct {
 	MinUniMMR      float64
 	BalancedUniMMR float64
 	MaxUniMMR      float64
+
+	VIPLoanMaxLTV float64
 }
 
 type VIPPortmarAccount struct {
