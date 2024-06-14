@@ -2,6 +2,8 @@ package frbnc
 
 import (
 	"log/slog"
+	"slices"
+	"sort"
 
 	"github.com/dwdwow/cex/bnc"
 )
@@ -25,6 +27,21 @@ func (v *VIPPortmarAcctSimple) start() {
 
 func (v *VIPPortmarAcctSimple) handle(acct *VIPPortmarAccount) {}
 
+type SpotCollInfo struct {
+	Bal               bnc.SpotBalance
+	Price             float64
+	PmCollRate        float64
+	LoanCollUsedValue float64
+}
+
+func (s SpotCollInfo) Value() float64 {
+	return s.Bal.Free * s.Price
+}
+
+func (s SpotCollInfo) PmCollValue() float64 {
+	return s.Value() * s.PmCollRate
+}
+
 func (v *VIPPortmarAcctSimple) handleLowMMR(acct *VIPPortmarAccount) {
 	if acct.PortmarAccountInformation.UniMMR > v.cfg.MinUniMMR {
 		return
@@ -46,36 +63,72 @@ func (v *VIPPortmarAcctSimple) handleLowMMR(acct *VIPPortmarAccount) {
 		return index.Symbol
 	})
 
-	var crrLtv, spotCollCap float64
-	if len(acct.LoanOrders) > 0 {
-		ord := acct.LoanOrders[0]
-		crrLtv = ord.CurrentLTV
+	var collInfos, suitableCollInfos []SpotCollInfo
 
-		if crrLtv >= v.cfg.VIPLoanMaxLTV {
-			v.logger.Error("Spot LTV Is Too High, Cannot Transfer Spots To Margin Portfolio Account", "ltv", crrLtv)
-			return
+	spots := acct.Spot.Balances
+	for _, s := range spots {
+		rate, ok := acct.PortmarCollateralRate(s.Asset)
+		if !ok {
+			continue
 		}
-
-		// TODO collateral rates need be considered
-		spotCollCap = ord.TotalCollateralValueAfterHaircut - ord.TotalDebt/v.cfg.VIPLoanMaxLTV
-	} else {
-		spots := acct.Spot.Balances
-		for _, s := range spots {
-			rate, ok := acct.PortmarCollateralRate(s.Asset)
-			if !ok {
-				continue
-			}
-			price, ok := prices[s.Asset]
-			if !ok {
-				continue
-			}
-			spotCollCap += s.Free * price.IndexPrice * rate.CollateralRate
+		price, ok := prices[s.Asset]
+		if !ok {
+			continue
 		}
+		collInfos = append(collInfos, SpotCollInfo{
+			Bal:        s,
+			Price:      price.IndexPrice,
+			PmCollRate: rate.CollateralRate,
+		})
 	}
 
-	if spotCollCap < equityNeed {
-		v.logger.Warn("Spot Collateral Value Is Not Enough", "cap", spotCollCap, "need", equityNeed)
+	sort.Slice(collInfos, func(i, j int) bool {
+		collI := collInfos[i]
+		collJ := collInfos[j]
+		sybI := collI.Bal.Asset
+		sybJ := collJ.Bal.Asset
+		if sybI == "ETH" || sybI == "BTC" {
+			return true
+		}
+		if sybJ == "ETH" || sybJ == "BTC" {
+			return false
+		}
+		return collI.PmCollRate > collJ.PmCollRate
+	})
+
+	var totalDebt float64
+	for _, ord := range acct.LoanOrders {
+		totalDebt += ord.TotalDebt
 	}
+
+	minSpotCollValue := totalDebt / v.cfg.VIPLoanMaxLTV
+	remainSpotCollValue := minSpotCollValue
+
+	slices.Reverse(collInfos)
+	for _, collInfo := range collInfos {
+		value := collInfo.Value()
+		if value < remainSpotCollValue {
+			remainSpotCollValue -= value
+			continue
+		}
+		if remainSpotCollValue > 0 {
+			remainSpotCollValue = 0
+			collInfo.LoanCollUsedValue = remainSpotCollValue
+		}
+		suitableCollInfos = append(suitableCollInfos, collInfo)
+	}
+
+	if len(suitableCollInfos) <= 0 {
+		// TODO Dangerous Situation
+		v.logger.Error("Spot Suitable Collaterals Are Not Enough")
+		return
+	}
+
+	slices.Reverse(suitableCollInfos)
+
+	remainingEquityNeed := equityNeed
+
+	_ = remainingEquityNeed
 
 }
 
