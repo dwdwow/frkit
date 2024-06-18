@@ -177,6 +177,18 @@ func (v *VIPPortmarAcctSimple) handleLowMMR(acct *VIPPortmarAccount, equityNeed 
 }
 
 func (v *VIPPortmarAcctSimple) cutPositions(acct *VIPPortmarAccount, equityNeed float64) (remainingEquityNeed float64, err error) {
+	// should care about 5000 real loss
+
+	poss := acct.PortmarAccountDetail.Positions
+
+	sort.Slice(poss, func(i, j int) bool {
+		//posI, posJ := poss[i], poss[j]
+		//sybI, sybJ := posI.Symbol, posJ.Symbol
+
+		return true
+
+	})
+
 	return
 }
 

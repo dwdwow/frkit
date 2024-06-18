@@ -13,7 +13,6 @@ type VIPPortmarOrderStatus string
 
 const (
 	VIPPortmarPosStatusNone             VIPPortmarPosStatus = ""
-	VIPPortmarPosStatusNew              VIPPortmarPosStatus = "NEW"
 	VIPPortmarPosStatusFuOpening        VIPPortmarPosStatus = "FU_OPENING"
 	VIPPortmarPosStatusSpOpening        VIPPortmarPosStatus = "SP_OPENING"
 	VIPPortmarPosStatusReFuOpening      VIPPortmarPosStatus = "RE_FU_OPENING"
@@ -25,7 +24,7 @@ const (
 	VIPPortmarPosStatusReFuFailed       VIPPortmarPosStatus = "RE_FU_FAILED"
 	VIPPortmarPosStatusFuWaiterFailed   VIPPortmarPosStatus = "FU_WAITER_FAILED"
 	VIPPortmarPosStatusSpWaiterFailed   VIPPortmarPosStatus = "SP_WAITER_FAILED"
-	VIPPortmarPosStatusReFuWaiterFailed VIPPortmarPosStatus = "RE_WAITER_FU_FAILED"
+	VIPPortmarPosStatusReFuWaiterFailed VIPPortmarPosStatus = "RE_FU_WAITER_FAILED"
 
 	VIPPortmarOrderStatusNone         VIPPortmarOrderStatus = ""
 	VIPPortmarOrderStatusOpening      VIPPortmarOrderStatus = "OPENING"
@@ -183,7 +182,7 @@ func VIPPortmarPosTrader(ctx context.Context, params VIPPortmarPosTraderParams) 
 	go func() {
 		var msg VIPPortmarPosMsg
 
-		// must trade future firstly
+		// must trade futures firstly
 
 		msg.FuOrd.Status = VIPPortmarOrderStatusOpening
 		msger.SendMsg(msg)
@@ -215,6 +214,9 @@ func VIPPortmarPosTrader(ctx context.Context, params VIPPortmarPosTraderParams) 
 			if spOrd.Status == VIPPortmarOrderStatusWaiterFailed {
 				return
 			}
+
+			// reverse futures
+
 			reFuOrd, err := VIPPortmarMarketTraderFunc(ctx, params.User, params.FuPair, reFuFunc, params.FuQty)
 			msg.ReFuOrd = reFuOrd
 			if err != nil {
