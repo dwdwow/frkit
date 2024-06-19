@@ -26,7 +26,8 @@ type VIPPortmarAccount struct {
 	Time   int64           `json:"time"`
 	Spot   bnc.SpotAccount `json:"spot"`
 
-	PortmarAccountDetail      bnc.PortfolioMarginAccountDetail      `json:"portmarAccountDetail"`
+	PortmarAccountUMDetail    bnc.PortfolioMarginAccountDetail      `json:"portmarAccountUMDetail"`
+	PortmarAccountCMDetail    bnc.PortfolioMarginAccountDetail      `json:"portmarAccountCMDetail"`
 	PortmarAccountInformation bnc.PortfolioMarginAccountInformation `json:"portmarAccountInformation"`
 
 	LoanOrders     []bnc.VIPLoanOngoingOrder          `json:"loanOrders"`
@@ -61,7 +62,11 @@ func QueryVIPPortmarAccount(user *bnc.User) (resp *resty.Response, acct *VIPPort
 	if reqErr.IsNotNil() {
 		return
 	}
-	resp, pmDetail, reqErr := user.PortfolioMarginAccountDetail()
+	resp, pmUMDetail, reqErr := user.PortfolioMarginAccountDetail()
+	if reqErr.IsNotNil() {
+		return
+	}
+	resp, pmCMDetail, reqErr := user.PortfolioMarginAccountCMDetail()
 	if reqErr.IsNotNil() {
 		return
 	}
@@ -87,14 +92,15 @@ func QueryVIPPortmarAccount(user *bnc.User) (resp *resty.Response, acct *VIPPort
 		ApiKey:                    user.Api().ApiKey,
 		Time:                      time.Now().UnixMilli(),
 		Spot:                      spot,
-		PortmarAccountDetail:      pmDetail,
+		PortmarAccountUMDetail:    pmUMDetail,
+		PortmarAccountCMDetail:    pmCMDetail,
 		PortmarAccountInformation: pmInfo,
 		LoanOrders:                loanOrders.Rows,
 		LoanStatusInfo:            loanStatusInfo.Rows,
 		PortmarCollateralRates:    collRates,
 		spBals:                    slice2map(spot.Balances, func(balance bnc.SpotBalance) string { return balance.Asset }),
-		pmAssets:                  slice2map(pmDetail.Assets, func(asset bnc.PortfolioMarginAccountAsset) string { return asset.Asset }),
-		pmPoss:                    slice2map(pmDetail.Positions, func(position bnc.PortfolioMarginAccountPosition) string { return position.Symbol }),
+		pmAssets:                  slice2map(pmUMDetail.Assets, func(asset bnc.PortfolioMarginAccountAsset) string { return asset.Asset }),
+		pmPoss:                    slice2map(pmUMDetail.Positions, func(position bnc.PortfolioMarginAccountPosition) string { return position.Symbol }),
 		pmCollRates: slice2map(collRates, func(rate bnc.PortfolioMarginCollateralRate) string {
 			return rate.Asset
 		}),

@@ -2,6 +2,7 @@ package frbnc
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/dwdwow/cex"
 	"github.com/dwdwow/cex/bnc"
@@ -76,4 +77,16 @@ func mapGetter[U any](m map[string]U, key string) (U, bool) {
 	}
 	v, ok := m[key]
 	return v, ok
+}
+
+func IsQuoteAsset(symbol, quote string) bool {
+	sl := len(symbol)
+	ql := len(quote)
+	if sl*ql == 0 {
+		return false
+	}
+	if sl <= ql {
+		return false
+	}
+	return strings.Index(symbol, quote) == sl-ql
 }

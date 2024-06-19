@@ -176,18 +176,37 @@ func (v *VIPPortmarAcctSimple) handleLowMMR(acct *VIPPortmarAccount, equityNeed 
 	return
 }
 
-func (v *VIPPortmarAcctSimple) cutPositions(acct *VIPPortmarAccount, equityNeed float64) (remainingEquityNeed float64, err error) {
+func (v *VIPPortmarAcctSimple) cutPositions(acct *VIPPortmarAccount, equityNeed float64, forLowMMR bool) (remainingEquityNeed float64, err error) {
 	// should care about 5000 real loss
 
-	poss := acct.PortmarAccountDetail.Positions
-
-	sort.Slice(poss, func(i, j int) bool {
-		//posI, posJ := poss[i], poss[j]
-		//sybI, sybJ := posI.Symbol, posJ.Symbol
-
-		return true
-
-	})
+	//_prices, err := bnc.QueryCMPremiumIndex("", "")
+	//if err != nil {
+	//	v.logger.Error("Can't Query CM Premium Index", "err", err)
+	//}
+	//
+	//prices := slice2map(_prices, func(index bnc.CMPremiumIndex) string {
+	//	return index.Symbol
+	//})
+	//
+	//type Pos struct {
+	//	Position bnc.PortfolioMarginAccountPosition
+	//	NPL      float64
+	//}
+	//
+	//umPoss := acct.PortmarAccountUMDetail.Positions
+	//cmPoss := acct.PortmarAccountCMDetail.Positions
+	//_poss := slices.Concat(umPoss, cmPoss)
+	//
+	//var poss []Pos
+	//
+	//for _, pos := range _poss {
+	//
+	//}
+	//
+	//sort.Slice(umPoss, func(i, j int) bool {
+	//	posI, posJ := umPoss[i], umPoss[j]
+	//	return posI.UnrealizedProfit < posJ.UnrealizedProfit
+	//})
 
 	return
 }
