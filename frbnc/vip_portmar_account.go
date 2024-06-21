@@ -39,6 +39,8 @@ type VIPPortmarAccount struct {
 	pmAssets    map[string]bnc.PortfolioMarginAccountAsset
 	pmPoss      map[string]bnc.PortfolioMarginAccountPosition
 	pmCollRates map[string]bnc.PortfolioMarginCollateralRate
+
+	cmPairs map[string]cex.Pair
 }
 
 func (a VIPPortmarAccount) SpotBalance(asset string) (bnc.SpotBalance, bool) {
@@ -55,6 +57,10 @@ func (a VIPPortmarAccount) PortmarPosition(symbol string) (bnc.PortfolioMarginAc
 
 func (a VIPPortmarAccount) PortmarCollateralRate(asset string) (bnc.PortfolioMarginCollateralRate, bool) {
 	return mapGetter(a.pmCollRates, asset)
+}
+
+func (a VIPPortmarAccount) CMFuturesPair(symbol string) (cex.Pair, bool) {
+	return mapGetter(a.cmPairs, symbol)
 }
 
 func QueryVIPPortmarAccount(user *bnc.User) (resp *resty.Response, acct *VIPPortmarAccount, reqErr cex.RequestError) {
@@ -87,6 +93,11 @@ func QueryVIPPortmarAccount(user *bnc.User) (resp *resty.Response, acct *VIPPort
 		reqErr = cex.RequestError{Err: err}
 		return
 	}
+	cmPairs, _, err := bnc.QueryCMFuturesPairs()
+	if err != nil {
+		reqErr = cex.RequestError{Err: err}
+		return
+	}
 
 	acct = &VIPPortmarAccount{
 		ApiKey:                    user.Api().ApiKey,
@@ -103,6 +114,9 @@ func QueryVIPPortmarAccount(user *bnc.User) (resp *resty.Response, acct *VIPPort
 		pmPoss:                    slice2map(pmUMDetail.Positions, func(position bnc.PortfolioMarginAccountPosition) string { return position.Symbol }),
 		pmCollRates: slice2map(collRates, func(rate bnc.PortfolioMarginCollateralRate) string {
 			return rate.Asset
+		}),
+		cmPairs: slice2map(cmPairs, func(pair cex.Pair) string {
+			return pair.PairSymbol
 		}),
 	}
 
